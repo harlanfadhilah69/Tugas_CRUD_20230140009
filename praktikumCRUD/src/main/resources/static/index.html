@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen KTP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</head>
+<body class="bg-gray-100 p-8">
+<div class="max-w-5xl mx-auto bg-white p-6 rounded shadow">
+    <h1 class="text-2xl font-bold mb-6 text-gray-800">Form Data KTP</h1>
+
+    <div class="grid grid-cols-2 gap-4 mb-8">
+        <input type="hidden" id="ktpId">
+
+        <div class="flex flex-col">
+            <label class="font-semibold text-sm mb-1">Nomor KTP</label>
+            <input type="text" id="nomorKtp" placeholder="Masukkan Nomor KTP" class="border p-2 rounded">
+        </div>
+
+        <div class="flex flex-col">
+            <label class="font-semibold text-sm mb-1">Nama Lengkap</label>
+            <input type="text" id="namaLengkap" placeholder="Masukkan Nama" class="border p-2 rounded">
+        </div>
+
+        <div class="flex flex-col col-span-2">
+            <label class="font-semibold text-sm mb-1">Alamat</label>
+            <input type="text" id="alamat" placeholder="Masukkan Alamat" class="border p-2 rounded">
+        </div>
+
+        <div class="flex flex-col">
+            <label class="font-semibold text-sm mb-1">Tanggal Lahir</label>
+            <input type="date" id="tanggalLahir" class="border p-2 rounded">
+        </div>
+
+        <div class="flex flex-col">
+            <label class="font-semibold text-sm mb-1">Jenis Kelamin</label>
+            <select id="jenisKelamin" class="border p-2 rounded">
+                <option value="Laki-laki">Laki-laki</option>
+                <option value="Perempuan">Perempuan</option>
+            </select>
+        </div>
+
+        <button onclick="saveKtp()" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 col-span-2 font-bold mt-2">Simpan Data</button>
+    </div>
+
+    <hr class="mb-6">
+
+    <h2 class="text-xl font-bold mb-4 text-gray-800">Daftar Data KTP</h2>
+    <table class="w-full border-collapse border border-gray-300">
+        <thead>
+        <tr class="bg-gray-200">
+            <th class="border p-2">Nomor KTP</th>
+            <th class="border p-2">Nama</th>
+            <th class="border p-2">Alamat</th>
+            <th class="border p-2">Tanggal Lahir</th>
+            <th class="border p-2">Aksi</th>
+        </tr>
+        </thead>
+        <tbody id="ktpTableBody"></tbody>
+    </table>
+</div>
+
+<script>
+    const API_URL = '/ktp';
+
+    // 1. GET ALL
+    $(document).ready(function() {
+        loadData();
+    });
+
+    function loadData() {
+        $.ajax({
+            url: API_URL,
+            method: 'GET',
+            success: function(data) {
+                let rows = '';
+                data.forEach(ktp => {
+                    rows += `<tr>
+                        <td class="border p-2">${ktp.nomorKtp}</td>
+                        <td class="border p-2">${ktp.namaLengkap}</td>
+                        <td class="border p-2">${ktp.alamat}</td>
+                        <td class="border p-2">${ktp.tanggalLahir}</td>
+                        <td class="border p-2 text-center">
+                            <button onclick="editKtp(${ktp.id}, '${ktp.nomorKtp}', '${ktp.namaLengkap}', '${ktp.alamat}', '${ktp.tanggalLahir}', '${ktp.jenisKelamin}')" class="text-yellow-600 font-bold mr-2">Edit</button>
+                            <button onclick="deleteKtp(${ktp.id})" class="text-red-600 font-bold">Hapus</button>
+                        </td>
+                    </tr>`;
+                });
+                $('#ktpTableBody').html(rows);
+            },
+            error: function() {
+                alert('Gagal memuat data!');
+            }
+        });
+    }
+
+    // 2. SAVE (POST & PUT)
+    function saveKtp() {
+        const id = $('#ktpId').val();
+        const payload = {
+            nomorKtp: $('#nomorKtp').val(),
+            namaLengkap: $('#namaLengkap').val(),
+            alamat: $('#alamat').val(),
+            tanggalLahir: $('#tanggalLahir').val(),
+            jenisKelamin: $('#jenisKelamin').val()
+        };
+
+        $.ajax({
+            url: id ? `${API_URL}/${id}` : API_URL,
+            method: id ? 'PUT' : 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(payload),
+            success: function() {
+                alert('Data berhasil disimpan!');
+                resetForm();
+                loadData();
+            },
+            error: function(err) {
+                alert('Error: ' + (err.responseText || 'Terjadi kesalahan sistem'));
+            }
+        });
+    }
+
+    // 3. DELETE
+    function deleteKtp(id) {
+        if(confirm('Yakin ingin menghapus data ini?')) {
+            $.ajax({
+                url: `${API_URL}/${id}`,
+                method: 'DELETE',
+                success: function() {
+                    alert('Data berhasil dihapus!');
+                    loadData();
+                },
+                error: function() {
+                    alert('Gagal menghapus data.');
+                }
+            });
+        }
+    }
+
+    // Helper: Mengisi form saat tombol Edit ditekan
+    function editKtp(id, no, nama, alamat, tgl, jk) {
+        $('#ktpId').val(id);
+        $('#nomorKtp').val(no);
+        $('#namaLengkap').val(nama);
+        $('#alamat').val(alamat);
+        $('#tanggalLahir').val(tgl);
+        $('#jenisKelamin').val(jk);
+    }
+
+    // Helper: Mengosongkan form
+    function resetForm() {
+        $('#ktpId').val('');
+        $('#nomorKtp').val('');
+        $('#namaLengkap').val('');
+        $('#alamat').val('');
+        $('#tanggalLahir').val('');
+    }
+</script>
+</body>
+</html>
