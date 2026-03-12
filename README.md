@@ -12,3 +12,5 @@ Tampilan Error jika Nomor KTP sudah ada yg terdaftar(tidak bisa sama)
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/fa3cd45c-3bbb-4260-8c8d-5f720dd8a77d" />
 Tampilan Error jika Data tidak lengkap
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/3de457dd-cf2c-4059-83ff-353c8921f818" />
+Tampilan MY SQL
+<img width="1920" height="1080" alt="Screenshot 2026-03-12 224119" src="https://github.com/user-attachments/assets/07202cc3-816a-4400-bce2-00a1a046b695" />
